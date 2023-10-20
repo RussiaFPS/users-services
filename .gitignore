@@ -108,3 +108,5 @@ gen
 # Go workspace file
 go.work
 
+# pgData
+pgdata/
