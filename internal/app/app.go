@@ -16,8 +16,9 @@ func Run() {
 	dbRepo.MigrateModel()
 
 	// Controller
-	r := http.New(dbRepo)
-	err := r.Run("localhost:8080")
+	c := http.New(dbRepo)
+	c.NewRoute()
+	err := c.Route.Run(":8080")
 	if err != nil {
 		log.Fatal("Error, gin run: ", err)
 	}

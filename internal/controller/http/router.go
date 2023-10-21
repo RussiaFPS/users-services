@@ -6,20 +6,19 @@ import (
 )
 
 type Controller struct {
-	route *gin.Engine
-	db    *repo.DbRepo
+	Route *gin.Engine
+	Db    *repo.DbRepo
 }
 
-func New(repo *repo.DbRepo) *gin.Engine {
-	r := gin.Default()
-	c := &Controller{r, repo}
+func New(repo *repo.DbRepo) *Controller {
+	return &Controller{gin.Default(), repo}
+}
 
-	api := c.route.Group("/api")
+func (c Controller) NewRoute() {
+	api := c.Route.Group("/api")
 	{
 		api.POST("/add", c.add)
 	}
-
-	return r
 }
 
 func (c Controller) add(ctx *gin.Context) {
