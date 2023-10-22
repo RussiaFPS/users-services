@@ -42,3 +42,15 @@ func (d DbRepo) GetUser(id int) (types.User, error) {
 
 	return u, nil
 }
+
+func (d DbRepo) DelUser(id int) error {
+	u := types.User{}
+	res := d.DB.Where("id = ?", id).Delete(&u)
+
+	if res.Error != nil {
+		log.Println("Error, DelUser in repo: ", res.Error)
+		return res.Error
+	}
+
+	return nil
+}

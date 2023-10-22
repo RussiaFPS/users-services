@@ -25,7 +25,26 @@ func (c Controller) NewRoute() {
 	{
 		api.POST("/add", c.add)
 		api.GET("/user/:id", c.getById)
+		api.DELETE("/user/:id", c.delById)
 	}
+}
+
+func (c Controller) delById(ctx *gin.Context) {
+	idParam := ctx.Param("id")
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		log.Println("Error, delById conv to int: ", err)
+		ctx.Status(http.StatusNotFound)
+		return
+	}
+
+	err = c.Db.DelUser(id)
+	if err != nil {
+		ctx.Status(http.StatusNotFound)
+		return
+	}
+
+	ctx.Status(200)
 }
 
 func (c Controller) getById(ctx *gin.Context) {
