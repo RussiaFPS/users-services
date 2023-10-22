@@ -31,12 +31,24 @@ func (d DbRepo) AddUser(user types.User) error {
 	return nil
 }
 
-func (d DbRepo) GetUser(id int) (types.User, error) {
+func (d DbRepo) GetUser() ([]types.User, error) {
+	var u []types.User
+	res := d.DB.Find(&u)
+
+	if res.Error != nil {
+		log.Println("Error, GetUser in repo: ", res.Error)
+		return []types.User{}, res.Error
+	}
+
+	return u, nil
+}
+
+func (d DbRepo) GetUserById(id int) (types.User, error) {
 	u := types.User{}
 	res := d.DB.Where("id = ?", id).First(&u)
 
 	if res.Error != nil {
-		log.Println("Error, GetUser in repo: ", res.Error)
+		log.Println("Error, GetUserById in repo: ", res.Error)
 		return types.User{}, res.Error
 	}
 

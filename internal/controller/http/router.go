@@ -24,9 +24,20 @@ func (c Controller) NewRoute() {
 	api := c.Route.Group("/api")
 	{
 		api.POST("/add", c.add)
+		api.GET("/user", c.get)
 		api.GET("/user/:id", c.getById)
 		api.DELETE("/user/:id", c.delById)
 	}
+}
+
+func (c Controller) get(ctx *gin.Context) {
+	res, err := c.Db.GetUser()
+	if err != nil {
+		ctx.Status(http.StatusNotFound)
+		return
+	}
+
+	ctx.JSON(200, res)
 }
 
 func (c Controller) delById(ctx *gin.Context) {
@@ -56,7 +67,7 @@ func (c Controller) getById(ctx *gin.Context) {
 		return
 	}
 
-	res, err := c.Db.GetUser(id)
+	res, err := c.Db.GetUserById(id)
 	if err != nil {
 		ctx.Status(http.StatusNotFound)
 		return
