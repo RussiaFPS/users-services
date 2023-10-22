@@ -45,3 +45,18 @@ type UserCountryApi struct {
 	Name    string        `json:"name"`
 	Country []CountryInfo `json:"country"`
 }
+
+type UserAgeChan struct {
+	Age *UserAgeApi
+	Err error
+}
+
+type UserGenChan struct {
+	Gen *UserGenderApi
+	Err error
+}
+
+type UserCountryChan struct {
+	Cnt *UserCountryApi
+	Err error
+}

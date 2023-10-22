@@ -44,85 +44,38 @@ func (c Controller) add(ctx *gin.Context) {
 		return
 	}
 
+	// Create chan from requests
+	chAge := make(chan types.UserAgeChan)
+	chAgeStr := types.UserAgeChan{}
+	chGen := make(chan types.UserGenChan)
+	chGenStr := types.UserGenChan{}
+	chCnt := make(chan types.UserCountryChan)
+	chCntStr := types.UserCountryChan{}
+
 	// Request Age API
-	req, err := http.Get(types.AgeAPI + user.Name)
-	if err != nil {
-		log.Println("Error get age API: ", err)
-		ctx.Status(http.StatusServiceUnavailable)
-		return
-	}
-
-	defer req.Body.Close()
-	body, err := ioutil.ReadAll(req.Body)
-	if err != nil {
-		log.Println("Error read body age API: ", err)
-		ctx.Status(http.StatusServiceUnavailable)
-		return
-	}
-
-	userAgeApi := &types.UserAgeApi{}
-	err = json.Unmarshal(body, &userAgeApi)
-	if err != nil {
-		log.Println("Error unmarshal body age API: ", err)
-		ctx.Status(http.StatusServiceUnavailable)
-		return
-	}
-
+	go RequestAge(user.Name, chAge)
 	// Request Gender API
-	req, err = http.Get(types.GenAPI + user.Name)
-	if err != nil {
-		log.Println("Error get gender API: ", err)
-		ctx.Status(http.StatusServiceUnavailable)
-		return
-	}
-
-	defer req.Body.Close()
-	body, err = ioutil.ReadAll(req.Body)
-	if err != nil {
-		log.Println("Error read body gender API: ", err)
-		ctx.Status(http.StatusServiceUnavailable)
-		return
-	}
-
-	userGenderApi := &types.UserGenderApi{}
-	err = json.Unmarshal(body, &userGenderApi)
-	if err != nil {
-		log.Println("Error unmarshal body gender API: ", err)
-		ctx.Status(http.StatusServiceUnavailable)
-		return
-	}
-
+	go RequestGender(user.Name, chGen)
 	// Request Country API
-	req, err = http.Get(types.CountryAPI + user.Name)
-	if err != nil {
-		log.Println("Error get country API: ", err)
+	go RequestCountry(user.Name, chCnt)
+
+	// Get data requests
+	chAgeStr = <-chAge
+	chGenStr = <-chGen
+	chCntStr = <-chCnt
+
+	if chAgeStr.Err != nil || chGenStr.Err != nil || chCntStr.Err != nil {
 		ctx.Status(http.StatusServiceUnavailable)
 		return
 	}
 
-	defer req.Body.Close()
-	body, err = ioutil.ReadAll(req.Body)
-	if err != nil {
-		log.Println("Error read body country API: ", err)
-		ctx.Status(http.StatusServiceUnavailable)
-		return
-	}
-
-	userCountryApi := &types.UserCountryApi{}
-	err = json.Unmarshal(body, &userCountryApi)
-	if err != nil {
-		log.Println("Error unmarshal body country API: ", err)
-		ctx.Status(http.StatusServiceUnavailable)
-		return
-	}
-
-	if len(userCountryApi.Country) > 0 {
-		u := types.User{Name: user.Name, Surname: user.Surname, Patronymic: user.Patronymic, Age: userAgeApi.Age,
-			Gender: userGenderApi.Gender, CountryId: userCountryApi.Country[0].CountryId}
+	if len(chCntStr.Cnt.Country) > 0 {
+		u := types.User{Name: user.Name, Surname: user.Surname, Patronymic: user.Patronymic, Age: chAgeStr.Age.Age,
+			Gender: chGenStr.Gen.Gender, CountryId: chCntStr.Cnt.Country[0].CountryId}
 		ctx.JSON(201, u)
 	} else {
-		u := types.User{Name: user.Name, Surname: user.Surname, Patronymic: user.Patronymic, Age: userAgeApi.Age,
-			Gender: userGenderApi.Gender, CountryId: ""}
+		u := types.User{Name: user.Name, Surname: user.Surname, Patronymic: user.Patronymic, Age: chAgeStr.Age.Age,
+			Gender: chGenStr.Gen.Gender, CountryId: ""}
 		ctx.JSON(201, u)
 	}
 }
