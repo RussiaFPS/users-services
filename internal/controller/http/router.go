@@ -72,10 +72,22 @@ func (c Controller) add(ctx *gin.Context) {
 	if len(chCntStr.Cnt.Country) > 0 {
 		u := types.User{Name: user.Name, Surname: user.Surname, Patronymic: user.Patronymic, Age: chAgeStr.Age.Age,
 			Gender: chGenStr.Gen.Gender, CountryId: chCntStr.Cnt.Country[0].CountryId}
+
+		if c.Db.AddUser(u) != nil {
+			ctx.Status(http.StatusBadGateway)
+			return
+		}
+
 		ctx.JSON(201, u)
 	} else {
 		u := types.User{Name: user.Name, Surname: user.Surname, Patronymic: user.Patronymic, Age: chAgeStr.Age.Age,
 			Gender: chGenStr.Gen.Gender, CountryId: ""}
+
+		if c.Db.AddUser(u) != nil {
+			ctx.Status(http.StatusBadGateway)
+			return
+		}
+
 		ctx.JSON(201, u)
 	}
 }

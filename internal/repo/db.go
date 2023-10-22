@@ -20,3 +20,13 @@ func (d DbRepo) MigrateModel() {
 		log.Fatal("Error, migrate model: ", err)
 	}
 }
+
+func (d DbRepo) AddUser(user types.User) error {
+	res := d.DB.Create(&user)
+	if res.Error != nil {
+		log.Println("Error, AddUser in repo: ", res.Error)
+		return res.Error
+	}
+
+	return nil
+}
