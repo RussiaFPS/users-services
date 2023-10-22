@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strconv"
 	"users-services/internal/repo"
 	"users-services/internal/types"
 )
@@ -23,7 +24,26 @@ func (c Controller) NewRoute() {
 	api := c.Route.Group("/api")
 	{
 		api.POST("/add", c.add)
+		api.GET("/user/:id", c.getById)
 	}
+}
+
+func (c Controller) getById(ctx *gin.Context) {
+	idParam := ctx.Param("id")
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		log.Println("Error, getById conv to int: ", err)
+		ctx.Status(http.StatusNotFound)
+		return
+	}
+
+	res, err := c.Db.GetUser(id)
+	if err != nil {
+		ctx.Status(http.StatusNotFound)
+		return
+	}
+
+	ctx.JSON(200, res)
 }
 
 func (c Controller) add(ctx *gin.Context) {

@@ -30,3 +30,15 @@ func (d DbRepo) AddUser(user types.User) error {
 
 	return nil
 }
+
+func (d DbRepo) GetUser(id int) (types.User, error) {
+	u := types.User{}
+	res := d.DB.Where("id = ?", id).First(&u)
+
+	if res.Error != nil {
+		log.Println("Error, GetUser in repo: ", res.Error)
+		return types.User{}, res.Error
+	}
+
+	return u, nil
+}
