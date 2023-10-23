@@ -94,6 +94,7 @@ func (c Controller) update(ctx *gin.Context) {
 			return
 		}
 
+		log.Println("Update user by id: ", u.ID)
 		ctx.Status(200)
 	} else {
 		u := types.User{Model: gorm.Model{ID: uint(id)}, Name: user.Name, Surname: user.Surname, Patronymic: user.Patronymic, Age: chAgeStr.Age.Age,
@@ -104,6 +105,7 @@ func (c Controller) update(ctx *gin.Context) {
 			return
 		}
 
+		log.Println("Update user by id: ", u.ID)
 		ctx.Status(200)
 	}
 }
@@ -124,13 +126,16 @@ func (c Controller) get(ctx *gin.Context) {
 			return
 		}
 		if len(res) > page-10 && len(res) >= page {
+			log.Printf("Get user by page: %d - %d\n", page-10, page)
 			ctx.JSON(200, res[page-10:page])
 			return
 		}
 		if len(res) > page-10 && len(res) < page {
+			log.Printf("Get user by page: %d... \n", page-10)
 			ctx.JSON(200, res[page-10:])
 			return
 		}
+		log.Printf("Get user by page non found: %d\n", page-10)
 		ctx.Status(http.StatusNotFound)
 		return
 	}
@@ -141,6 +146,7 @@ func (c Controller) get(ctx *gin.Context) {
 		return
 	}
 
+	log.Println("Get all users")
 	ctx.JSON(200, res)
 }
 
@@ -159,6 +165,7 @@ func (c Controller) delById(ctx *gin.Context) {
 		return
 	}
 
+	log.Printf("Dell user by id: %d\n", id)
 	ctx.Status(200)
 }
 
@@ -177,6 +184,7 @@ func (c Controller) getById(ctx *gin.Context) {
 		return
 	}
 
+	log.Printf("Get user by id: %d\n", id)
 	ctx.JSON(200, res)
 }
 
@@ -234,6 +242,7 @@ func (c Controller) add(ctx *gin.Context) {
 			return
 		}
 
+		log.Println("Add user: ", u)
 		ctx.Status(201)
 	} else {
 		u := types.User{Name: user.Name, Surname: user.Surname, Patronymic: user.Patronymic, Age: chAgeStr.Age.Age,
@@ -244,6 +253,7 @@ func (c Controller) add(ctx *gin.Context) {
 			return
 		}
 
+		log.Println("Add user: ", u)
 		ctx.Status(201)
 	}
 }
