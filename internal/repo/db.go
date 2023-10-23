@@ -21,6 +21,16 @@ func (d DbRepo) MigrateModel() {
 	}
 }
 
+func (d DbRepo) UpdateUser(u types.User) error {
+	res := d.DB.Save(&u)
+	if res.Error != nil {
+		log.Println("Error, UpdateUser in repo: ", res.Error)
+		return res.Error
+	}
+
+	return nil
+}
+
 func (d DbRepo) AddUser(user types.User) error {
 	res := d.DB.Create(&user)
 	if res.Error != nil {
