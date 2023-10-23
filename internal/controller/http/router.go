@@ -94,7 +94,7 @@ func (c Controller) update(ctx *gin.Context) {
 			return
 		}
 
-		ctx.JSON(200, u)
+		ctx.Status(200)
 	} else {
 		u := types.User{Model: gorm.Model{ID: uint(id)}, Name: user.Name, Surname: user.Surname, Patronymic: user.Patronymic, Age: chAgeStr.Age.Age,
 			Gender: chGenStr.Gen.Gender, CountryId: ""}
@@ -104,11 +104,37 @@ func (c Controller) update(ctx *gin.Context) {
 			return
 		}
 
-		ctx.JSON(200, u)
+		ctx.Status(200)
 	}
 }
 
 func (c Controller) get(ctx *gin.Context) {
+	pageQuery := ctx.Query("page")
+	if pageQuery != "" {
+		page, err := strconv.Atoi(pageQuery)
+		if err != nil || page < 0 {
+			log.Println("Error, get page conv to int: ", err)
+			ctx.Status(http.StatusNotFound)
+			return
+		}
+		page = page * 10
+		res, err := c.Db.GetUser()
+		if err != nil {
+			ctx.Status(http.StatusNotFound)
+			return
+		}
+		if len(res) > page-10 && len(res) >= page {
+			ctx.JSON(200, res[page-10:page])
+			return
+		}
+		if len(res) > page-10 && len(res) < page {
+			ctx.JSON(200, res[page-10:])
+			return
+		}
+		ctx.Status(http.StatusNotFound)
+		return
+	}
+
 	res, err := c.Db.GetUser()
 	if err != nil {
 		ctx.Status(http.StatusNotFound)
@@ -208,7 +234,7 @@ func (c Controller) add(ctx *gin.Context) {
 			return
 		}
 
-		ctx.JSON(201, u)
+		ctx.Status(201)
 	} else {
 		u := types.User{Name: user.Name, Surname: user.Surname, Patronymic: user.Patronymic, Age: chAgeStr.Age.Age,
 			Gender: chGenStr.Gen.Gender, CountryId: ""}
@@ -218,6 +244,6 @@ func (c Controller) add(ctx *gin.Context) {
 			return
 		}
 
-		ctx.JSON(201, u)
+		ctx.Status(201)
 	}
 }
